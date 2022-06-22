@@ -11,13 +11,11 @@ namespace Shogun\FrontendCheckout\Service;
 use Magento\Checkout\Model\Session;
 use Magento\Customer\Api\CustomerRepositoryInterface;
 use Magento\Customer\Model\Session as CustomerSession;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Controller\Result\RedirectFactory;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\View\Result\PageFactory;
 use Magento\Integration\Api\UserTokenReaderInterface;
-use Magento\Integration\Model\Oauth\TokenFactory;
 use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\QuoteIdMaskFactory;
 use Magento\Quote\Model\QuoteRepository;
 
 /**
@@ -49,6 +47,10 @@ class CheckoutSync implements CheckoutSyncInterface
      * @var UserTokenReaderInterface
      */
     protected $userTokenReader;
+    /**
+     * @var QuoteIdMaskFactory
+     */
+    protected $quoteIdMaskFactory;
 
     /**
      * @param CustomerRepositoryInterface $customerRepository
@@ -63,6 +65,7 @@ class CheckoutSync implements CheckoutSyncInterface
         CustomerSession $customerSession,
         QuoteRepository $quoteRepository,
         QuoteFactory $quoteFactory,
+        QuoteIdMaskFactory $quoteIdMaskFactory,
         Session $checkoutSession,
         UserTokenReaderInterface $userTokenReader
     ) {
@@ -70,40 +73,84 @@ class CheckoutSync implements CheckoutSyncInterface
         $this->customerSession = $customerSession;
         $this->quoteRepository = $quoteRepository;
         $this->quoteFactory = $quoteFactory;
+        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->checkoutSession = $checkoutSession;
         $this->userTokenReader = $userTokenReader;
     }
 
     /**
-     * Syncs a customer cart for checkout
+     * Syncs a cart for checkout
      *
-     * @param string $customerToken
+     * @param string|null $customerToken
      * @param string $cartId
      * @return void
      */
-    public function syncCustomerCart(string $customerToken, string $cartId)
+    public function syncCart(?string $customerToken, string $cartId)
     {
         $customer = $this->getCustomer($customerToken);
-        $this->customerSession->loginById($customer->getId());
 
-        $quote = $this->findOrCreateCustomerQuote($customer, $cartId);
-
-        $this->checkoutSession->replaceQuote($quote);
-        $this->checkoutSession->regenerateId();
+        if ($customer) {
+            $this->syncCustomerCart($customer, $cartId);
+        } else {
+            $this->syncGuestCart($cartId);
+        }
     }
 
     /**
-     * @param string $tokenParam
-     * @return \Magento\Customer\Api\Data\CustomerInterface
-     * @throws NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param \Magento\Customer\Api\Data\CustomerInterface $customer
+     * @param string $cartId
+     * @return void
      */
-    private function getCustomer(string $tokenParam): \Magento\Customer\Api\Data\CustomerInterface
+    private function syncCustomerCart(\Magento\Customer\Api\Data\CustomerInterface $customer, string $cartId)
     {
-        $userToken = $this->userTokenReader->read($tokenParam);
+        $this->customerSession->loginById($customer->getId());
+        $quote = $this->findOrCreateCustomerQuote($customer, $cartId);
+        $this->checkoutQuote($quote);
+    }
+
+    /**
+     * @param string $cartId
+     * @return void
+     */
+    private function syncGuestCart(string $cartId)
+    {
+        $quoteIdMask = $this->quoteIdMaskFactory->create()->load($cartId, 'masked_id');
+        $quoteId = $quoteIdMask->getQuoteId();
+
+        if ($quoteId) {
+            $quote = $this->getCartQuote($quoteId);
+            $this->checkoutQuote($quote);
+        }
+    }
+
+    /**
+     * @param $quote
+     * @return void
+     */
+    private function checkoutQuote($quote)
+    {
+        $this->checkoutSession->replaceQuote($quote);
+//        $this->checkoutSession->regenerateId();
+    }
+
+    /**
+     * @param string|null $customerToken
+     * @return \Magento\Customer\Api\Data\CustomerInterface|null
+     */
+    private function getCustomer(?string $customerToken = null): ?\Magento\Customer\Api\Data\CustomerInterface
+    {
+        if (empty($customerToken)) {
+            return null;
+        }
+
+        $userToken = $this->userTokenReader->read($customerToken);
         $customerId = $userToken->getUserContext()->getUserId();
 
-        return $this->customerRepository->getById($customerId);
+        try {
+            return $this->customerRepository->getById($customerId);
+        } catch (NoSuchEntityException|LocalizedException $e) {
+            return null;
+        }
     }
 
     /**

@@ -63,10 +63,10 @@ class Sync implements HttpGetActionInterface
      */
     public function execute()
     {
-        $this->checkoutSync->syncCustomerCart(
-            $this->request->getParam(self::SHOGUN_FRONTEND_CHECKOUT_TOKEN_PARAM),
-            $this->request->getParam(self::SHOGUN_FRONTEND_CHECKOUT_CART_PARAM)
-        );
+            $this->checkoutSync->syncCart(
+                $this->request->getParam(self::SHOGUN_FRONTEND_CHECKOUT_TOKEN_PARAM),
+                $this->request->getParam(self::SHOGUN_FRONTEND_CHECKOUT_CART_PARAM)
+            );
 
         return $this->redirectFactory->create()->setPath(
             self::SHOGUN_FRONTEND_CHECKOUT_CHECKOUT_PATH
