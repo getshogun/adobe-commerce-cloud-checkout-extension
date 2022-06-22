@@ -116,10 +116,14 @@ class CheckoutSync implements CheckoutSyncInterface
         $quote = $this->getCustomerQuote($customer);
         $cartQuote = $this->getCartQuote($cartId);
 
+        // If for some reason the cart and the customer quote isn't the same, e.g. if the front-end shifted
+        // carts around between customers, we want to merge / transfer the two together.
         if ($cartQuote->getId() && ($quote->getId() !== $cartQuote->getId())) {
             $quote = $quote->merge($cartQuote);
         }
 
+        // The quote could be a null object. Thus, it won't be persisted and its ID will be nil.
+        // In that case, we want to persist the quote to be used in a second attempt to sync the cart.
         if (!$quote->getId()) {
             $quote->assignCustomer($customer);
             $quote->collectTotals();
