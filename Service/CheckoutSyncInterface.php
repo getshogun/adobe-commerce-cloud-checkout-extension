@@ -13,5 +13,5 @@ namespace Shogun\FrontendCheckout\Service;
  */
 interface CheckoutSyncInterface
 {
-    public function syncCustomerCart(string $customerToken, string $cartId);
+    public function syncCart(?string $customerToken, string $cartId);
 }
