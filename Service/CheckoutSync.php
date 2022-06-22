@@ -130,7 +130,7 @@ class CheckoutSync implements CheckoutSyncInterface
     private function checkoutQuote($quote)
     {
         $this->checkoutSession->replaceQuote($quote);
-//        $this->checkoutSession->regenerateId();
+        $this->checkoutSession->regenerateId();
     }
 
     /**
