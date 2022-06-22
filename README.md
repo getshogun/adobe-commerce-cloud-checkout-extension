@@ -1,15 +1,33 @@
 # adobe-commerce-cloud-checkout-extension
 Adobe Commerce Cloud extension to checkout orders from Shogun storefronts.
 
-## Usage
+## Compatibility
 
-Clone this repo into your Magento's instance `src/app/code/Shogun/` and run:
+Magento 2.4 or higher.
+
+## Install
+
+### Composer
+
+1. Install the extension with composer:
+
+```bash
+composer require shogun/frontend-checkout
+```
+
+2. Run the following command on your Magento instance:
+
+```
+php bin/magento setup:upgrade
+```
+
+### Manual
+
+Clone this repo into your Magento's instance `src/app/code/Shogun/FrontendCheckout` and run:
 
 ```bash
 bin/magento module:enable Shogun_FrontendCheckout --clear-static-content
-
 bin/magento setup:upgrade
-
 bin/magento cache:flush
 ```
 
