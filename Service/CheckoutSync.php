@@ -86,7 +86,7 @@ class CheckoutSync implements CheckoutSyncInterface
         $customer = $this->getCustomer($customerToken);
         $this->customerSession->loginById($customer->getId());
 
-        $quote = $this->getQuote($customer, $cartId);
+        $quote = $this->findOrCreateCustomerQuote($customer, $cartId);
 
         $this->checkoutSession->replaceQuote($quote);
         $this->checkoutSession->regenerateId();
@@ -111,7 +111,7 @@ class CheckoutSync implements CheckoutSyncInterface
      * @param string $cartId
      * @return \Magento\Quote\Model\Quote
      */
-    private function getQuote(\Magento\Customer\Api\Data\CustomerInterface $customer, string $cartId): \Magento\Quote\Model\Quote
+    private function findOrCreateCustomerQuote(\Magento\Customer\Api\Data\CustomerInterface $customer, string $cartId): \Magento\Quote\Model\Quote
     {
         $quote = $this->getCustomerQuote($customer);
         $cartQuote = $this->getCartQuote($cartId);
