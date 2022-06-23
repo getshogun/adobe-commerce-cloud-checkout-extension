@@ -1,0 +1,18 @@
+{
+    "name": "shogun/frontend-checkout",
+    "description": "Shogun's Frontend checkout extension for Adobe Commerce Cloud.",
+    "license": "BSD-3-Clause",
+    "type": "magento2-module",
+    "authors": [],
+    "require": {
+        "php": ">=7.3"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Shogun\\FrontendCheckout\\": ""
+        }
+    }
+}
