@@ -34,7 +34,7 @@ bin/magento cache:flush
 
 ## Development
 
-## Dependency Injection
+### Dependency Injection
 
 Magento uses a tool named "Injector" to inject dependencies into constructors.
 Hence, if you ever change your constructor signature, you need to recompile
