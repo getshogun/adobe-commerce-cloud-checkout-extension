@@ -1,5 +1,6 @@
-# adobe-commerce-cloud-checkout-extension
-Adobe Commerce Cloud extension to checkout orders from Shogun storefronts.
+# Adobe Commerce Cloud (Magento) module
+
+Shogun's Frontend checkout extension for Adobe Commerce Cloud.
 
 ## Compatibility
 
@@ -31,7 +32,9 @@ bin/magento setup:upgrade
 bin/magento cache:flush
 ```
 
-## Injector
+## Development
+
+## Dependency Injection
 
 Magento uses a tool named "Injector" to inject dependencies into constructors.
 Hence, if you ever change your constructor signature, you need to recompile
@@ -40,3 +43,13 @@ in order to inject the necessary dependencies by running:
 ```bash
 bin/magento setup:upgrade && bin/magento cache:clean && bin/magento setup:di:compile
 ```
+
+## Release
+
+Here's how to release a new version of the module:
+
+1. The module is available as a composer package on [Packagist](https://packagist.org/packages/shogun/frontend-checkout).
+2. Create [a new GitHub release](https://github.com/getshogun/adobe-commerce-cloud-checkout-extension/releases).
+3. Packagist will automatically update the package through Github's hooks.
+
+Note that Packagist also manages the `composer.json` version automatically.
