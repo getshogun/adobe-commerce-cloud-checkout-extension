@@ -46,7 +46,9 @@ bin/magento setup:upgrade && bin/magento cache:clean && bin/magento setup:di:com
 
 ## Release
 
-1. The module is available as package on [Packagist](https://packagist.org/packages/shogun/frontend-checkout).
+Here's how to release a new version of the module:
+
+1. The module is available as a composer package on [Packagist](https://packagist.org/packages/shogun/frontend-checkout).
 2. Create [a new GitHub release](https://github.com/getshogun/adobe-commerce-cloud-checkout-extension/releases).
 3. Packagist will automatically update the package through Github's hooks.
 
